@@ -77,3 +77,11 @@ class gteFileManagement:
             if filenames != []:
                 for filename in filenames:
                     self.paths_files.append([folder, filename])
+
+    def get_properties_files(self):
+        """Lista as propriedades dos arquivos da pasta e subpastas."""
+        self.files_properties.clear()
+        for pf in self.paths_files:
+            file = gteFile()
+            file.get_properties(pf[0], pf[1])
+            self.files_properties.append(file)
