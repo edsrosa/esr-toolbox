@@ -3,6 +3,8 @@ import datetime as dt
 import hashlib
 import zipfile as zf
 
+import pandas as pd
+
 
 class gteFile:
     def __init__(self):
@@ -19,6 +21,7 @@ class gteFile:
         self.datetime_modification=''
         self.size_byte=0
         self.hash_sha256=''
+        self.table={}
         self.gteZip_list=[]
     
     def new_gteFile(self, folderpath, filename):
@@ -42,6 +45,22 @@ class gteFile:
         hash256.update(open(self.filepath, 'rb').read())
         self.hash_sha256 = hash256.hexdigest()
 
+    def properties_to_dict(self):
+        """Extrai as propriedades para um dicionario."""
+        table = {"filepath": self.filepath, 
+                 "folderpath": self.folderpath,
+                 "filename": self.filename, 
+                 "name": self.name, 
+                 "extension": self.extension, 
+                 "folder": self.folder, 
+                 "creation_date": self.datetime_creation, 
+                 "acess_date": self.datetime_acess, 
+                 "modification_date": self.datetime_modification, 
+                 "size_byte": self.size_byte, 
+                 "hash_sha256": self.hash_sha256
+                 }
+        self.table = table
+
     def gteZip_list(self):
         """ZipFile: Listagem do conteúdo do arquivo zip."""
         if self.extension == '.zip':
@@ -56,13 +75,13 @@ class gteFile:
 
 
 class gteFileManagement:
-
     def __init__(self):
         """Gestão de arquivos diversos."""
         self.basefolder='' # caminho da pasta base
         self.paths_folder=[] # caminhos de todas as pastas incluidas na pasta base e em suas subpastas
         self.paths_files=[] # caminhos de todos os arquivos incluídos na pasta base e em suas subpastas
         self.gteFiles=[] # gte files
+        self.table_properties={}
 
     def set_basefolder(self, basefolder):
         """Insere o caminho da pasta de referência."""
@@ -80,8 +99,31 @@ class gteFileManagement:
 
     def get_properties_files(self):
         """Lista as propriedades dos arquivos da pasta e subpastas."""
-        self.files_properties.clear()
+        self.gteFiles.clear()
         for pf in self.paths_files:
             file = gteFile()
-            file.get_properties(pf[0], pf[1])
-            self.files_properties.append(file)
+            file.new_gteFile(pf[0], pf[1])
+            file.get_properties()
+            self.gteFiles.append(file)
+
+    def properties_to_dict_files(self):
+        """Extrai as propriedades de todos os arquivos para dicionarios."""
+        self.table_properties.clear()
+        
+        for i, fp in enumerate(self.gteFiles):
+            self.gteFiles[i].properties_to_dict()
+        
+        table_properties = {}
+
+        for fp in self.gteFiles:
+            for k, v in fp.table.items():
+                if k not in table_properties:
+                    table_properties[k] = []
+                table_properties[k].append(v)
+        
+        self.table_properties = table_properties
+    
+    def save_table_excel(self, filepath):
+        """Salva tabela de propriedades em um Excel."""
+        df = pd.DataFrame.from_dict(self.table_properties)
+        df.to_excel(filepath)

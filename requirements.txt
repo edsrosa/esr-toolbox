@@ -1,0 +1,5 @@
+ipykernel
+openpyxl
+rarfile
+pypdf
+pandas
