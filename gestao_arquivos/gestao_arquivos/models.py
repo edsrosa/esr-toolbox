@@ -13,7 +13,7 @@ class gteFile:
         self.filename=''  #  nome do arquivo com a extensão
         self.name=''  # nome do arquivo
         self.extension='.'  # extensão do arquivo, com o . incluído
-        self.filepath='' # caminnho
+        self.filepath='' # caminho
 
         self.folder=''
         self.datetime_creation=''
@@ -127,3 +127,9 @@ class gteFileManagement:
         """Salva tabela de propriedades em um Excel."""
         df = pd.DataFrame.from_dict(self.table_properties)
         df.to_excel(filepath)
+
+    def list_properties(self,basefolder):
+        """Lista as propriedades dos arquivos."""
+        self.set_basefolder(basefolder=basefolder)
+        self.list_subfolders_files()
+        self.get_properties_files()
